@@ -12,7 +12,7 @@ st.set_page_config(
 )
 hid_menu = """
 <style>
-#MainMenu {visibility: hidden;}
+#stToolbar {visibility: hidden;}
 footer {visibility: hidden;}
 </style>
 """
