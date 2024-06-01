@@ -11,6 +11,7 @@ st.set_page_config(
     page_icon=':electric_plug:',  # This is an emoji shortcode. Could be a URL too.
 )
 
+
 hide_streamlit_style = """
                 <style>
                 div[data-testid="stToolbar"] {
