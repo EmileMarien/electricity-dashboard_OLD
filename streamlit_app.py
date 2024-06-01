@@ -17,6 +17,8 @@ hide_streamlit_style = """
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
+            .css-1y0tads {visibility: hidden;} /* Hides the top-right corner controls */
+            .css-18ni7ap {visibility: hidden;} /* Hides the Streamlit hamburger menu */
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
