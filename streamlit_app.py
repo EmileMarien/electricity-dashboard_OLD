@@ -11,17 +11,20 @@ st.set_page_config(
     page_icon=':electric_plug:',  # This is an emoji shortcode. Could be a URL too.
 )
 
-# Hide Streamlit's default menu and footer using custom CSS
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            .css-1y0tads {visibility: hidden;} /* Hides the top-right corner controls */
-            .css-18ni7ap {visibility: hidden;} /* Hides the Streamlit hamburger menu */
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+# Add custom CSS to hide the GitHub icon
+hide_github_icon = """
+#GithubIcon {
+  visibility: hidden;
+}
+#MainMenu {
+  visibility: hidden;
+}
+
+"""
+st.markdown(hide_github_icon, unsafe_allow_html=True)
+
+
+
 
 # Dummy function to simulate live electricity meter data
 @st.cache_data(ttl=60)
