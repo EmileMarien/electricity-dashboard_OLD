@@ -11,40 +11,44 @@ st.set_page_config(
     page_icon=':electric_plug:',  # This is an emoji shortcode. Could be a URL too.
 )
 
-
+# Hide Streamlit's default menu and footer using custom CSS
 hide_streamlit_style = """
-                <style>
-                div[data-testid="stToolbar"] {
+            <style>
+            div[data-testid="stToolbar"] {
                 visibility: hidden;
                 height: 0%;
                 position: fixed;
-                }
-                div[data-testid="stDecoration"] {
+            }
+            div[data-testid="stDecoration"] {
                 visibility: hidden;
                 height: 0%;
                 position: fixed;
-                }
-                div[data-testid="stStatusWidget"] {
+            }
+            div[data-testid="stStatusWidget"] {
                 visibility: hidden;
                 height: 0%;
                 position: fixed;
-                }
-                #MainMenu {
+            }
+            #MainMenu {
                 visibility: hidden;
                 height: 0%;
-                }
-                header {
+            }
+            header {
                 visibility: hidden;
                 height: 0%;
-                }
-                footer {
+            }
+            footer {
                 visibility: hidden;
                 height: 0%;
-                }
-                </style>
-                """
+            }
+            button[title="View fullscreen"] {
+                visibility: hidden;
+                height: 0%;
+                position: fixed;
+            }
+            </style>
+            """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 
 # Dummy function to simulate live electricity meter data
 @st.cache_data(ttl=60)
