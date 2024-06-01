@@ -10,13 +10,14 @@ st.set_page_config(
     page_title='Electricity Meter Dashboard',
     page_icon=':electric_plug:',  # This is an emoji shortcode. Could be a URL too.
 )
-hid_menu = """
+hide_streamlit_style = """
 <style>
-#stToolbar {visibility: hidden;}
+#MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 </style>
+
 """
-st.markdown(hid_menu, unsafe_allow_html=True)
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 # Hide Streamlit's default menu and footer using custom CSS
 hide_streamlit_style = """
