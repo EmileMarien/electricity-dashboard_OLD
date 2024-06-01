@@ -10,6 +10,13 @@ st.set_page_config(
     page_title='Electricity Meter Dashboard',
     page_icon=':electric_plug:',  # This is an emoji shortcode. Could be a URL too.
 )
+hid_menu = """
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+"""
+st.markdown(hid_menu, unsafe_allow_html=True)
 
 # Hide Streamlit's default menu and footer using custom CSS
 hide_streamlit_style = """
@@ -48,7 +55,7 @@ hide_streamlit_style = """
             }
             </style>
             """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+#st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Dummy function to simulate live electricity meter data
 @st.cache_data(ttl=60)
