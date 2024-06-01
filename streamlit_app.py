@@ -1,149 +1,89 @@
 import streamlit as st
 import pandas as pd
-import math
-from pathlib import Path
+import numpy as np
+from datetime import datetime, timedelta
 
 # Set the title and favicon that appear in the Browser's tab bar.
 st.set_page_config(
-    page_title='GDP Dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
+    page_title='Electricity Meter Dashboard',
+    page_icon=':electric_plug:',  # This is an emoji shortcode. Could be a URL too.
 )
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+# Dummy function to simulate live electricity meter data
+@st.cache_data(ttl=60)
+def get_meter_data():
+    """Simulate fetching electricity meter data."""
+    now = datetime.now()
+    times = [now - timedelta(minutes=i) for i in range(60)]
+    meter1 = np.random.random(60) * 100  # Simulated data for meter 1
+    meter2 = np.random.random(60) * 100  # Simulated data for meter 2
+    meter3 = np.random.random(60) * 100  # Simulated data for meter 3
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
+    data = {
+        'time': times,
+        'Meter 1': meter1,
+        'Meter 2': meter2,
+        'Meter 3': meter3,
+    }
 
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
+    return pd.DataFrame(data)
 
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
-    )
-
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
-
-    return gdp_df
-
-gdp_df = get_gdp_data()
-
-# -----------------------------------------------------------------------------
-# Draw the actual page
+# Fetch initial data
+meter_data = get_meter_data()
 
 # Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP Dashboard
+st.title(':electric_plug: Electricity Meter Dashboard')
 
-Energy consumption over the years
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time test test test', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
+# Dropdown to select meter
+meter = st.selectbox(
+    'Select Meter',
+    ['Meter 1', 'Meter 2', 'Meter 3']
 )
 
-''
-''
+# Time period slider (in minutes)
+time_period = st.slider(
+    'Select Time Period (in minutes)',
+    min_value=5,
+    max_value=60,
+    value=30
+)
 
+# Filter data based on selected time period
+filtered_data = meter_data[meter_data['time'] >= (datetime.now() - timedelta(minutes=time_period))]
 
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
+# Display line chart of the selected meter data
+st.line_chart(filtered_data[['time', meter]].set_index('time'))
 
-st.header(f'GDP in {to_year}', divider='gray')
+# Calculate statistical metrics
+avg_value = filtered_data[meter].mean()
+min_value = filtered_data[meter].min()
+max_value = filtered_data[meter].max()
 
-''
+# Display statistical metrics
+st.subheader(f'Statistical Metrics for {meter} (Last {time_period} minutes)')
+st.write(f'**Average:** {avg_value:.2f}')
+st.write(f'**Minimum:** {min_value:.2f}')
+st.write(f'**Maximum:** {max_value:.2f}')
 
-cols = st.columns(4)
+# Function to update data every minute
+def update_data():
+    meter_data = get_meter_data()
+    filtered_data = meter_data[meter_data['time'] >= (datetime.now() - timedelta(minutes=time_period))]
+    st.line_chart(filtered_data[['time', meter]].set_index('time'))
+    avg_value = filtered_data[meter].mean()
+    min_value = filtered_data[meter].min()
+    max_value = filtered_data[meter].max()
+    st.subheader(f'Statistical Metrics for {meter} (Last {time_period} minutes)')
+    st.write(f'**Average:** {avg_value:.2f}')
+    st.write(f'**Minimum:** {min_value:.2f}')
+    st.write(f'**Maximum:** {max_value:.2f}')
 
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
+# Set Streamlit to run the update_data function every minute
+st.experimental_rerun()
 
-    with col:
-        first_gdp = first_year[gdp_df['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[gdp_df['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+# Extra Guidance:
+# 1. You could add an option to download the displayed data as a CSV file using `st.download_button`.
+# 2. Include additional statistical metrics or visualizations as needed.
+# 3. Implement a notification system for specific conditions (e.g., if the meter reading exceeds a certain threshold).
+# 4. Allow comparison between multiple meters by selecting multiple meters and displaying them on the same graph.
+# 5. Integrate with a real database or an API for actual data instead of the dummy function.
